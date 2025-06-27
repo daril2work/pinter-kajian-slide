@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,8 +22,13 @@ import {
   MapPin,
   Plus,
   Edit,
-  Trash2
+  Trash2,
+  Eye,
+  Video,
+  Image as ImageIcon
 } from "lucide-react";
+import EnhancedKajianForm from '@/components/EnhancedKajianForm';
+import { toast } from "@/components/ui/sonner";
 
 // Mock data - nanti akan diganti dengan data dari database
 const mockHeroContent = {
@@ -47,10 +51,28 @@ const mockKajian = [
     title: "Keutamaan Menuntut Ilmu dalam Islam",
     speaker: "Ustadz Ahmad Syahid",
     date: "2024-01-15",
-    time: "19:30 - 21:00",
+    start_time: "19:30",
+    end_time: "21:00",
+    location: "Masjid Al-Hidayah",
     description: "Ustadz Ahmad Syahid akan membahas tentang pentingnya menuntut ilmu dalam perspektif Islam dan bagaimana mengaplikasikannya dalam kehidupan sehari-hari.",
-    image: "https://images.unsplash.com/photo-1591604021695-0c50b32e98db?w=500&h=280&fit=crop",
-    status: "upcoming"
+    image_url: "https://images.unsplash.com/photo-1591604021695-0c50b32e98db?w=500&h=280&fit=crop",
+    video_url: "https://www.facebook.com/watch/?v=123456789",
+    status: "upcoming",
+    is_featured: true
+  },
+  {
+    id: 2,
+    title: "Tafsir Al-Qur'an Surah Al-Baqarah",
+    speaker: "Ustadz Muhammad Hasan",
+    date: "2024-01-20",
+    start_time: "20:00",
+    end_time: "21:30",
+    location: "Masjid Al-Hidayah",
+    description: "Mempelajari makna dan hikmah dari ayat-ayat dalam Surah Al-Baqarah",
+    image_url: "https://images.unsplash.com/photo-1609599006353-e629aaabfeae?w=500&h=280&fit=crop",
+    video_url: "",
+    status: "upcoming",
+    is_featured: false
   }
 ];
 
@@ -58,15 +80,17 @@ const Admin = () => {
   const [heroContent, setHeroContent] = useState(mockHeroContent);
   const [prayerTimes, setPrayerTimes] = useState(mockPrayerTimes);
   const [kajianList, setKajianList] = useState(mockKajian);
+  const [showKajianForm, setShowKajianForm] = useState(false);
+  const [editingKajian, setEditingKajian] = useState(null);
 
   const handleSaveHero = () => {
     console.log('Saving hero content:', heroContent);
-    // TODO: Save to database
+    toast.success('Hero section berhasil disimpan');
   };
 
   const handleSavePrayerTimes = () => {
     console.log('Saving prayer times:', prayerTimes);
-    // TODO: Save to database
+    toast.success('Jadwal shalat berhasil disimpan');
   };
 
   const updatePrayerTime = (id: number, field: string, value: string) => {
@@ -74,6 +98,77 @@ const Admin = () => {
       prayer.id === id ? { ...prayer, [field]: value } : prayer
     ));
   };
+
+  const handleAddKajian = () => {
+    setEditingKajian(null);
+    setShowKajianForm(true);
+  };
+
+  const handleEditKajian = (kajian: any) => {
+    setEditingKajian(kajian);
+    setShowKajianForm(true);
+  };
+
+  const handleDeleteKajian = (id: number) => {
+    if (confirm('Apakah Anda yakin ingin menghapus kajian ini?')) {
+      setKajianList(prev => prev.filter(k => k.id !== id));
+      toast.success('Kajian berhasil dihapus');
+    }
+  };
+
+  const handleKajianSubmit = (data: any) => {
+    if (editingKajian) {
+      // Update existing kajian
+      setKajianList(prev => prev.map(k => 
+        k.id === editingKajian.id ? { ...k, ...data } : k
+      ));
+      toast.success('Kajian berhasil diupdate');
+    } else {
+      // Add new kajian
+      const newKajian = {
+        ...data,
+        id: Date.now(), // Simple ID generation
+        status: 'upcoming'
+      };
+      setKajianList(prev => [...prev, newKajian]);
+      toast.success('Kajian berhasil ditambahkan');
+    }
+    setShowKajianForm(false);
+    setEditingKajian(null);
+  };
+
+  const handleKajianCancel = () => {
+    setShowKajianForm(false);
+    setEditingKajian(null);
+  };
+
+  const formatTime = (time: string) => {
+    return time ? `${time}` : '-';
+  };
+
+  const formatDate = (date: string) => {
+    if (!date) return '-';
+    return new Date(date).toLocaleDateString('id-ID', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  if (showKajianForm) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6">
+        <div className="max-w-7xl mx-auto">
+          <EnhancedKajianForm
+            kajian={editingKajian}
+            onSubmit={handleKajianSubmit}
+            onCancel={handleKajianCancel}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -187,7 +282,7 @@ const Admin = () => {
             <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold">Kelola Kajian</h2>
-                <Button className="gradient-islamic text-white">
+                <Button onClick={handleAddKajian} className="gradient-islamic text-white">
                   <Plus className="w-4 h-4 mr-2" />
                   Tambah Kajian
                 </Button>
@@ -198,9 +293,10 @@ const Admin = () => {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Judul</TableHead>
+                        <TableHead>Kajian</TableHead>
                         <TableHead>Pemateri</TableHead>
-                        <TableHead>Tanggal</TableHead>
+                        <TableHead>Jadwal</TableHead>
+                        <TableHead>Media</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Aksi</TableHead>
                       </TableRow>
@@ -208,12 +304,52 @@ const Admin = () => {
                     <TableBody>
                       {kajianList.map((kajian) => (
                         <TableRow key={kajian.id}>
-                          <TableCell className="font-medium">{kajian.title}</TableCell>
+                          <TableCell>
+                            <div className="space-y-1">
+                              <div className="font-medium">{kajian.title}</div>
+                              <div className="flex items-center gap-2">
+                                <MapPin className="w-3 h-3 text-gray-500" />
+                                <span className="text-sm text-gray-500">{kajian.location}</span>
+                              </div>
+                              {kajian.is_featured && (
+                                <Badge className="bg-yellow-100 text-yellow-800 text-xs">
+                                  Unggulan
+                                </Badge>
+                              )}
+                            </div>
+                          </TableCell>
                           <TableCell>{kajian.speaker}</TableCell>
                           <TableCell>
-                            <div className="flex items-center gap-1">
-                              <Calendar className="w-4 h-4 text-gray-500" />
-                              {kajian.date}
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-1">
+                                <Calendar className="w-3 h-3 text-gray-500" />
+                                <span className="text-sm">{formatDate(kajian.date)}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Clock className="w-3 h-3 text-gray-500" />
+                                <span className="text-sm">
+                                  {formatTime(kajian.start_time)} - {formatTime(kajian.end_time)}
+                                </span>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              {kajian.image_url && (
+                                <Badge variant="outline" className="text-xs">
+                                  <ImageIcon className="w-3 h-3 mr-1" />
+                                  Flyer
+                                </Badge>
+                              )}
+                              {kajian.video_url && (
+                                <Badge variant="outline" className="text-xs">
+                                  <Video className="w-3 h-3 mr-1" />
+                                  Video
+                                </Badge>
+                              )}
+                              {!kajian.image_url && !kajian.video_url && (
+                                <span className="text-xs text-gray-400">Tidak ada</span>
+                              )}
                             </div>
                           </TableCell>
                           <TableCell>
@@ -222,11 +358,20 @@ const Admin = () => {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            <div className="flex gap-2">
-                              <Button variant="ghost" size="sm">
+                            <div className="flex gap-1">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => handleEditKajian(kajian)}
+                              >
                                 <Edit className="w-4 h-4" />
                               </Button>
-                              <Button variant="ghost" size="sm" className="text-red-600">
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="text-red-600"
+                                onClick={() => handleDeleteKajian(kajian.id)}
+                              >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             </div>
