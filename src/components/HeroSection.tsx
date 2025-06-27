@@ -27,10 +27,17 @@ const HeroSection = () => {
               menyediakan akses mudah ke kajian dan informasi kegiatan masjid.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" className="bg-white text-emerald-600 hover:bg-emerald-50 font-semibold">
+              <Button 
+                size="lg" 
+                className="bg-white text-emerald-600 hover:bg-emerald-50 font-semibold border-0 shadow-lg hover:shadow-xl transition-all duration-300"
+              >
                 Lihat Jadwal Kegiatan
               </Button>
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-emerald-600">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="border-2 border-white text-white bg-transparent hover:bg-white hover:text-emerald-600 font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+              >
                 Tonton Kajian
               </Button>
             </div>
@@ -72,7 +79,7 @@ const HeroSection = () => {
                     Ustadz Ahmad Syahid akan membahas tentang pentingnya menuntut ilmu 
                     dalam perspektif Islam dan bagaimana mengaplikasikannya dalam kehidupan sehari-hari.
                   </p>
-                  <Button className="w-full gradient-islamic text-white hover:opacity-90">
+                  <Button className="w-full gradient-islamic text-white hover:opacity-90 font-semibold shadow-lg">
                     Lihat Detail
                   </Button>
                 </div>
