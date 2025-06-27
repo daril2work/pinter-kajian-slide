@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +18,7 @@ const HeroSection = () => {
             </Badge>
             <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
               Takmir{" "}
-              <span className="text-gradient bg-gradient-to-r from-yellow-300 to-yellow-100 bg-clip-text text-transparent">
+              <span className="text-yellow-300 font-extrabold drop-shadow-lg">
                 Pinter
               </span>
             </h1>
