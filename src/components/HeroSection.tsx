@@ -42,9 +42,14 @@ const HeroSection = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left content */}
           <div className="text-white animate-fade-in-up">
-            <Badge className="mb-4 bg-white/20 text-white border-white/30 hover:bg-white/30">
-              {mosqueBadge}
-            </Badge>
+            {/* Mosque Badge - positioned above title */}
+            <div className="mb-6">
+              <Badge className="bg-white/20 text-white border-white/30 hover:bg-white/30 text-base px-4 py-2">
+                {mosqueBadge}
+              </Badge>
+            </div>
+            
+            {/* Title */}
             <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
               {title.includes("Pinter") ? (
                 <>
@@ -58,9 +63,13 @@ const HeroSection = () => {
                 title
               )}
             </h1>
+            
+            {/* Subtitle */}
             <p className="text-xl md:text-2xl mb-8 text-emerald-50 leading-relaxed">
               {subtitle}
             </p>
+            
+            {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
                 size="lg" 
