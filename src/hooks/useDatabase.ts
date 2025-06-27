@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { databaseService } from '@/services/database';
 import { Database } from '@/types/supabase';
 import { toast } from '@/components/ui/sonner';
+import { testSupabaseConnection } from '@/lib/supabase';
 
 type Tables = Database['public']['Tables'];
 
@@ -307,15 +308,32 @@ export const useAnnouncements = () => {
 export const useInitializeApp = () => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
 
   useEffect(() => {
     const initializeApp = async () => {
       try {
+        setConnectionError(null);
+        
+        // Test Supabase connection first
+        const isConnected = await testSupabaseConnection();
+        if (!isConnected) {
+          throw new Error('Tidak dapat terhubung ke Supabase. Periksa konfigurasi environment variables.');
+        }
+
         await databaseService.initializeDefaultData();
         setIsInitialized(true);
       } catch (error) {
         console.error('Failed to initialize app:', error);
-        toast.error('Gagal menginisialisasi aplikasi');
+        const errorMessage = error instanceof Error ? error.message : 'Gagal menginisialisasi aplikasi';
+        setConnectionError(errorMessage);
+        
+        // Show user-friendly error message
+        if (errorMessage.includes('Failed to fetch') || errorMessage.includes('Supabase')) {
+          toast.error('Tidak dapat terhubung ke database. Periksa konfigurasi Supabase Anda.');
+        } else {
+          toast.error(errorMessage);
+        }
       } finally {
         setIsInitializing(false);
       }
@@ -324,5 +342,5 @@ export const useInitializeApp = () => {
     initializeApp();
   }, []);
 
-  return { isInitialized, isInitializing };
+  return { isInitialized, isInitializing, connectionError };
 };
