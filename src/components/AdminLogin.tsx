@@ -52,11 +52,11 @@ const AdminLogin: React.FC<AdminLoginProps> = ({ onClose }) => {
 
   return (
     <div 
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 overflow-y-auto"
       onClick={handleOverlayClick}
     >
       <div className="w-full max-w-md mx-auto my-8">
-        <Card className="animate-scale-in shadow-2xl">
+        <Card className="animate-scale-in shadow-2xl bg-white relative z-[10000]">
           <CardHeader className="text-center">
             <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Lock className="w-8 h-8 text-emerald-600" />
