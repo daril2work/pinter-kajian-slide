@@ -24,10 +24,13 @@ export class DatabaseService {
       const { data, error } = await supabase
         .from('hero_content')
         .select('*')
+        .limit(1)
         .single();
 
-      if (error) throw error;
-      return data;
+      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+        throw error;
+      }
+      return data || null;
     } catch (error) {
       console.error('Error fetching hero content:', error);
       throw new Error(handleSupabaseError(error));
@@ -36,14 +39,37 @@ export class DatabaseService {
 
   async updateHeroContent(updates: HeroContentUpdate): Promise<HeroContent> {
     try {
-      const { data, error } = await supabase
-        .from('hero_content')
-        .update(updates)
-        .select()
-        .single();
+      // First, get the existing hero content
+      const existing = await this.getHeroContent();
+      
+      if (existing) {
+        // Update existing record
+        const { data, error } = await supabase
+          .from('hero_content')
+          .update(updates)
+          .eq('id', existing.id)
+          .select()
+          .single();
 
-      if (error) throw error;
-      return data;
+        if (error) throw error;
+        return data;
+      } else {
+        // Create new record if none exists
+        const { data, error } = await supabase
+          .from('hero_content')
+          .insert({
+            title: updates.title || 'Takmir Pinter',
+            subtitle: updates.subtitle || 'Platform digital untuk mengelola masjid dengan lebih baik',
+            mosque_badge: updates.mosque_badge || '🕌 Masjid Al-Hidayah',
+            button_primary_text: updates.button_primary_text || 'Lihat Jadwal Kegiatan',
+            button_secondary_text: updates.button_secondary_text || 'Tonton Kajian'
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        return data;
+      }
     } catch (error) {
       console.error('Error updating hero content:', error);
       throw new Error(handleSupabaseError(error));
@@ -72,10 +98,13 @@ export class DatabaseService {
       const { data, error } = await supabase
         .from('mosque_settings')
         .select('*')
+        .limit(1)
         .single();
 
-      if (error) throw error;
-      return data;
+      if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+        throw error;
+      }
+      return data || null;
     } catch (error) {
       console.error('Error fetching mosque settings:', error);
       throw new Error(handleSupabaseError(error));
@@ -84,14 +113,35 @@ export class DatabaseService {
 
   async updateMosqueSettings(updates: MosqueSettingsUpdate): Promise<MosqueSettings> {
     try {
-      const { data, error } = await supabase
-        .from('mosque_settings')
-        .update(updates)
-        .select()
-        .single();
+      // First, get the existing mosque settings
+      const existing = await this.getMosqueSettings();
+      
+      if (existing) {
+        // Update existing record
+        const { data, error } = await supabase
+          .from('mosque_settings')
+          .update(updates)
+          .eq('id', existing.id)
+          .select()
+          .single();
 
-      if (error) throw error;
-      return data;
+        if (error) throw error;
+        return data;
+      } else {
+        // Create new record if none exists
+        const { data, error } = await supabase
+          .from('mosque_settings')
+          .insert({
+            name: updates.name || 'Masjid Al-Hidayah',
+            address: updates.address || 'Jakarta, Indonesia',
+            contact: updates.contact || '+62 xxx xxx xxx'
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        return data;
+      }
     } catch (error) {
       console.error('Error updating mosque settings:', error);
       throw new Error(handleSupabaseError(error));
