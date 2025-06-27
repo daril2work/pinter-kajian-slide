@@ -28,7 +28,9 @@ import {
   Image as ImageIcon
 } from "lucide-react";
 import EnhancedKajianForm from '@/components/EnhancedKajianForm';
+import PrayerTimesSettings from '@/components/PrayerTimesSettings';
 import { toast } from "@/components/ui/sonner";
+import { PrayerTime, LocationCoordinates } from '@/services/prayerTimesApi';
 
 // Mock data - nanti akan diganti dengan data dari database
 const mockHeroContent = {
@@ -36,14 +38,6 @@ const mockHeroContent = {
   subtitle: "Platform digital untuk mengelola masjid dengan lebih baik, menyediakan akses mudah ke kajian dan informasi kegiatan masjid.",
   mosqueBadge: "🕌 Masjid Al-Hidayah"
 };
-
-const mockPrayerTimes = [
-  { id: 1, name: "Subuh", time: "04:45" },
-  { id: 2, name: "Dzuhur", time: "12:15" },
-  { id: 3, name: "Ashar", time: "15:30" },
-  { id: 4, name: "Maghrib", time: "18:45" },
-  { id: 5, name: "Isya", time: "20:00" }
-];
 
 const mockKajian = [
   {
@@ -78,7 +72,8 @@ const mockKajian = [
 
 const Admin = () => {
   const [heroContent, setHeroContent] = useState(mockHeroContent);
-  const [prayerTimes, setPrayerTimes] = useState(mockPrayerTimes);
+  const [prayerTimes, setPrayerTimes] = useState<PrayerTime[]>([]);
+  const [currentLocation, setCurrentLocation] = useState<LocationCoordinates | null>(null);
   const [kajianList, setKajianList] = useState(mockKajian);
   const [showKajianForm, setShowKajianForm] = useState(false);
   const [editingKajian, setEditingKajian] = useState(null);
@@ -86,6 +81,11 @@ const Admin = () => {
   const handleSaveHero = () => {
     console.log('Saving hero content:', heroContent);
     toast.success('Hero section berhasil disimpan');
+  };
+
+  const handlePrayerTimesUpdate = (newPrayerTimes: PrayerTime[], location: LocationCoordinates) => {
+    setPrayerTimes(newPrayerTimes);
+    setCurrentLocation(location);
   };
 
   const handleSavePrayerTimes = () => {
@@ -237,45 +237,68 @@ const Admin = () => {
           </TabsContent>
 
           <TabsContent value="prayer">
-            <Card>
-              <CardHeader>
-                <CardTitle>Edit Jadwal Shalat</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Waktu Shalat</TableHead>
-                      <TableHead>Jam</TableHead>
-                      <TableHead>Aksi</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {prayerTimes.map((prayer) => (
-                      <TableRow key={prayer.id}>
-                        <TableCell className="font-medium">{prayer.name}</TableCell>
-                        <TableCell>
-                          <Input
-                            type="time"
-                            value={prayer.time}
-                            onChange={(e) => updatePrayerTime(prayer.id, 'time', e.target.value)}
-                            className="w-32"
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Button variant="ghost" size="sm">
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-                <Button onClick={handleSavePrayerTimes} className="mt-4 gradient-islamic text-white">
-                  Simpan Jadwal Shalat
-                </Button>
-              </CardContent>
-            </Card>
+            <div className="space-y-6">
+              {/* Prayer Times Settings */}
+              <PrayerTimesSettings onPrayerTimesUpdate={handlePrayerTimesUpdate} />
+              
+              {/* Manual Prayer Times Table */}
+              {prayerTimes.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Jadwal Shalat Saat Ini</CardTitle>
+                    {currentLocation && (
+                      <p className="text-sm text-gray-600">
+                        Lokasi: {currentLocation.city}, {currentLocation.country}
+                      </p>
+                    )}
+                  </CardHeader>
+                  <CardContent>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Waktu Shalat</TableHead>
+                          <TableHead>Jam</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Aksi</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {prayerTimes.map((prayer) => (
+                          <TableRow key={prayer.id}>
+                            <TableCell className="font-medium">{prayer.name}</TableCell>
+                            <TableCell>
+                              <Input
+                                type="time"
+                                value={prayer.time}
+                                onChange={(e) => updatePrayerTime(prayer.id, 'time', e.target.value)}
+                                className="w-32"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Badge 
+                                variant={prayer.status === 'current' ? 'default' : 'outline'}
+                                className={prayer.status === 'current' ? 'bg-emerald-600' : ''}
+                              >
+                                {prayer.status === 'current' ? 'Sekarang' : 
+                                 prayer.status === 'completed' ? 'Selesai' : 'Akan Datang'}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Button variant="ghost" size="sm">
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                    <Button onClick={handleSavePrayerTimes} className="mt-4 gradient-islamic text-white">
+                      Simpan Perubahan Manual
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </TabsContent>
 
           <TabsContent value="kajian">
