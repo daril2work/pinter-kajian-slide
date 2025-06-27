@@ -1,9 +1,38 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, MapPin, Clock } from "lucide-react";
+import { Calendar, MapPin, Clock, Loader2 } from "lucide-react";
+import { useHeroContent } from '@/hooks/useDatabase';
 
 const HeroSection = () => {
+  const { heroContent, isLoading } = useHeroContent();
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 gradient-islamic opacity-90" />
+        <div className="relative z-10 max-w-7xl mx-auto px-4 py-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="text-white animate-fade-in-up">
+              <div className="flex items-center justify-center">
+                <Loader2 className="w-8 h-8 animate-spin text-white" />
+                <span className="ml-2 text-white">Memuat konten...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Use database content or fallback to default
+  const title = heroContent?.title || "Takmir Pinter";
+  const subtitle = heroContent?.subtitle || "Platform digital untuk mengelola masjid dengan lebih baik, menyediakan akses mudah ke kajian dan informasi kegiatan masjid.";
+  const mosqueBadge = heroContent?.mosque_badge || "🕌 Masjid Al-Hidayah";
+  const buttonPrimaryText = heroContent?.button_primary_text || "Lihat Jadwal Kegiatan";
+  const buttonSecondaryText = heroContent?.button_secondary_text || "Tonton Kajian";
+
   return (
     <section className="relative overflow-hidden">
       {/* Background with Islamic gradient */}
@@ -14,31 +43,37 @@ const HeroSection = () => {
           {/* Left content */}
           <div className="text-white animate-fade-in-up">
             <Badge className="mb-4 bg-white/20 text-white border-white/30 hover:bg-white/30">
-              🕌 Masjid Al-Hidayah
+              {mosqueBadge}
             </Badge>
             <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-              Takmir{" "}
-              <span className="text-yellow-300 font-extrabold drop-shadow-lg">
-                Pinter
-              </span>
+              {title.includes("Pinter") ? (
+                <>
+                  {title.split("Pinter")[0]}
+                  <span className="text-yellow-300 font-extrabold drop-shadow-lg">
+                    Pinter
+                  </span>
+                  {title.split("Pinter")[1]}
+                </>
+              ) : (
+                title
+              )}
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-emerald-50 leading-relaxed">
-              Platform digital untuk mengelola masjid dengan lebih baik, 
-              menyediakan akses mudah ke kajian dan informasi kegiatan masjid.
+              {subtitle}
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
                 size="lg" 
                 className="bg-white text-emerald-600 hover:bg-emerald-50 font-semibold border-0 shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                Lihat Jadwal Kegiatan
+                {buttonPrimaryText}
               </Button>
               <Button 
                 size="lg" 
                 variant="outline" 
                 className="border-2 border-white text-white bg-transparent hover:bg-white hover:text-emerald-600 font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                Tonton Kajian
+                {buttonSecondaryText}
               </Button>
             </div>
           </div>
