@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Play, Calendar, Clock, MapPin, Users, Loader2 } from "lucide-react";
+import { Play, Calendar, Clock, MapPin, Users, Loader2, Video } from "lucide-react";
 import HeroSection from "@/components/HeroSection";
 import ActivitySlider from "@/components/ActivitySlider";
 import KajianPlayer from "@/components/KajianPlayer";
