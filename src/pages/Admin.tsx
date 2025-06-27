@@ -26,7 +26,9 @@ import {
   Eye,
   Video,
   Image as ImageIcon,
-  Loader2
+  Loader2,
+  LogOut,
+  User
 } from "lucide-react";
 import EnhancedKajianForm from '@/components/EnhancedKajianForm';
 import PrayerTimesSettings from '@/components/PrayerTimesSettings';
@@ -39,11 +41,15 @@ import {
   useKajian,
   useInitializeApp 
 } from '@/hooks/useDatabase';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { Database } from '@/types/supabase';
 
 type KajianRow = Database['public']['Tables']['kajian']['Row'];
 
 const Admin = () => {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const { isInitialized, isInitializing } = useInitializeApp();
   const { heroContent, updateHeroContent, isLoading: heroLoading } = useHeroContent();
   const { mosqueSettings, updateMosqueSettings, isLoading: settingsLoading } = useMosqueSettings();
@@ -83,6 +89,12 @@ const Admin = () => {
       });
     }
   }, [mosqueSettings]);
+
+  const handleLogout = () => {
+    logout();
+    toast.success('Logout berhasil');
+    navigate('/');
+  };
 
   const handleSaveHero = async () => {
     try {
@@ -187,16 +199,37 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-          <p className="text-gray-600">Kelola konten aplikasi Takmir Pinter</p>
-          <div className="flex items-center gap-2 mt-2">
-            <Badge variant="outline" className="text-green-600 border-green-600">
-              Database Connected
-            </Badge>
-            <Badge variant="outline">
-              {kajianList.length} Kajian
-            </Badge>
+        {/* Header with Admin Info */}
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
+            <p className="text-gray-600">Kelola konten aplikasi Takmir Pinter</p>
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant="outline" className="text-green-600 border-green-600">
+                Database Connected
+              </Badge>
+              <Badge variant="outline">
+                {kajianList.length} Kajian
+              </Badge>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <p className="text-sm font-medium text-gray-900">
+                <User className="w-4 h-4 inline mr-1" />
+                {user?.username}
+              </p>
+              <p className="text-xs text-gray-500">Administrator</p>
+            </div>
+            <Button 
+              variant="outline" 
+              onClick={handleLogout}
+              className="text-red-600 border-red-600 hover:bg-red-50"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
           </div>
         </div>
 

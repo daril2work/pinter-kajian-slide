@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Play, Calendar, Clock, MapPin, Users, Loader2, Video } from "lucide-react";
+import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import ActivitySlider from "@/components/ActivitySlider";
 import KajianPlayer from "@/components/KajianPlayer";
@@ -102,6 +103,9 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-white">
+      {/* Header */}
+      <Header />
+      
       {/* Hero Section */}
       <HeroSection />
       
